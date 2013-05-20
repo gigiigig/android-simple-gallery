@@ -62,6 +62,8 @@ public class GalleryActivity extends Activity {
         viewFlipper = (ViewFlipper) findViewById(R.id.gallery_viewflipper);
 
         current = 0;
+        imagesFolder = "file:///android_asset/gallery";
+
         fromAssets = false;
 
         loadImages();
@@ -84,16 +86,11 @@ public class GalleryActivity extends Activity {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        Log.d(TAG, "GalleryActivity onTouchEvent action[" + event.getAction()
-                + "]");
-        Log.d(TAG,
-                "GalleryActivity onTouchEvent pointer count["
-                        + event.getPointerCount() + "]");
-
-        if (currentView != null)
+        if (currentView != null){
             return currentView.onTouchEvent(event);
-        else
+        }else{
             return super.onTouchEvent(event);
+        }
     }
 
     float currentScale = 1;
@@ -102,70 +99,68 @@ public class GalleryActivity extends Activity {
 
         Bundle extras = getIntent().getExtras();
         imagesPath = new LinkedList<String>();
-
-        Set<String> keySet = extras.keySet();
-        for (String string : keySet) {
-            Log.d(TAG,
-                    "loadImages extra " + string + "["
-                            + extras.getString(string) + "]");
-        }
+        int position = 0;
 
         if (extras != null) {
-            imagesFolder = extras.getString(INTENT_EXTRAS_FOLDER);
+
+            String extrasFolder = extras.getString(INTENT_EXTRAS_FOLDER);
+
+            if (extrasFolder != null) {
+                imagesFolder = extrasFolder;
+            }
+
             String positionSt = extras.getString(INTENT_EXTRAS_POSITION);
 
-            Log.d(TAG, "loadImages positionSt[" + positionSt + "]");
-
-            int position = 0;
             try {
                 position = Integer.parseInt(positionSt);
             } catch (NumberFormatException e) {
-                Log.e(TAG, "doInBackground [" + e + "]");
+                Log.e(TAG, "loadImages [" + e + "]");
             }
 
-            Log.d(TAG, "loadImages load folder[" + imagesFolder + "]");
 
-            if (imagesFolder != null) {
-                File file = new File(imagesFolder);
+        }
+        
+        Log.d(TAG, "load images from imagesFolder[" + imagesFolder + "]");
+        
+        if (imagesFolder != null) {
+            File file = new File(imagesFolder);
 
-                Log.d(TAG, "loadImages file exist[" + file.exists() + "]");
-                Log.d(TAG, "loadImages file id folder[" + file.isDirectory()
-                        + "]");
+            Log.d(TAG, "loadImages file exist[" + file.exists() + "]");
+            Log.d(TAG, "loadImages file id folder[" + file.isDirectory()
+                    + "]");
 
-                if (imagesFolder.contains("file:///android_asset/")) {
-                    imagesFolder = imagesFolder.replace(
-                            "file:///android_asset/", "");
+            if (imagesFolder.contains("file:///android_asset/")) {
+                imagesFolder = imagesFolder.replace(
+                        "file:///android_asset/", "");
 
-                    fromAssets = true;
+                fromAssets = true;
 
-                    try {
-                        String[] list = getAssets().list(imagesFolder);
-                        for (int i = 0; i < list.length; i++) {
-                            imagesPath.add(list[i]);
-                        }
-                    } catch (IOException e) {
-                        Log.e(TAG, "doInBackground [" + e + "]");
+                try {
+                    String[] list = getAssets().list(imagesFolder);
+                    for (int i = 0; i < list.length; i++) {
+                        imagesPath.add(list[i]);
                     }
-
-                } else {
-                    if (file.exists() && file.isDirectory()) {
-                        File[] listFiles = file.listFiles();
-
-                        for (File fileCurrent : listFiles) {
-                            Log.d(TAG,
-                                    "loadImages added file["
-                                            + fileCurrent.getPath() + "]");
-
-                            imagesPath.add(fileCurrent.getPath());
-                        }
-                    }
+                } catch (IOException e) {
+                    Log.e(TAG, "doInBackground [" + e + "]");
                 }
 
-                Log.d(TAG, "loadImages path size [" + imagesPath.size() +"]");
-                if (position < imagesPath.size()){
-                    current = position;
+            } else {
+                if (file.exists() && file.isDirectory()) {
+                    File[] listFiles = file.listFiles();
+
+                    for (File fileCurrent : listFiles) {
+                        Log.d(TAG,
+                                "loadImages added file["
+                                        + fileCurrent.getPath() + "]");
+
+                        imagesPath.add(fileCurrent.getPath());
+                    }
                 }
-                
+            }
+
+            Log.d(TAG, "loadImages images count [" + imagesPath.size() + "]");
+            if (position < imagesPath.size()) {
+                current = position;
             }
 
         }

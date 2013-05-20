@@ -21,8 +21,12 @@ public class SampleActivity extends Activity{
             @Override
             public void onClick(View v) {
                Intent intent = new Intent(SampleActivity.this, GalleryActivity.class);
-               intent.putExtra(GalleryActivity.INTENT_EXTRAS_FOLDER, "file:///android_asset/gallery");
-               intent.putExtra(GalleryActivity.INTENT_EXTRAS_POSITION, "1");
+               
+               //uncomment this line to change images folder
+               //intent.putExtra(GalleryActivity.INTENT_EXTRAS_FOLDER, "file:///android_asset/my_folder");
+               
+               //uncomment this line to change start image
+//               intent.putExtra(GalleryActivity.INTENT_EXTRAS_POSITION, "1");
                
                startActivity(intent);
                
