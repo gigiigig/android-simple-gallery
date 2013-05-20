@@ -80,37 +80,6 @@ public class GalleryActivity extends Activity {
             }
         }));
 
-        // , new Runnable() {
-        //
-        // @Override
-        // public void run() {
-        //
-        // ImageView imageView = (ImageView) viewFlipper.getCurrentView();
-        //
-        // ScaleAnimation scaleAnimation = new ScaleAnimation(
-        // currentScale, currentScale, currentScale + 0.1f,
-        // currentScale + 0.1f);
-        //
-        // imageView.startAnimation(scaleAnimation);
-        // currentScale += 0.1f;
-        // }
-        // }, new Runnable() {
-        //
-        // @Override
-        // public void run() {
-        // ImageView imageView = (ImageView) viewFlipper.getCurrentView();
-        //
-        // ScaleAnimation scaleAnimation = new ScaleAnimation(
-        // currentScale, currentScale, currentScale - 0.1f,
-        // currentScale - 0.1f);
-        //
-        // currentScale -= 0.1f;
-        //
-        // imageView.startAnimation(scaleAnimation);
-        //
-        // }
-        // }));
-
     }
 
     @Override
@@ -145,6 +114,8 @@ public class GalleryActivity extends Activity {
             imagesFolder = extras.getString(INTENT_EXTRAS_FOLDER);
             String positionSt = extras.getString(INTENT_EXTRAS_POSITION);
 
+            Log.d(TAG, "loadImages positionSt[" + positionSt + "]");
+
             int position = 0;
             try {
                 position = Integer.parseInt(positionSt);
@@ -152,52 +123,56 @@ public class GalleryActivity extends Activity {
                 Log.e(TAG, "doInBackground [" + e + "]");
             }
 
-            if (position < imagesPath.size())
-                current = position;
-        }
+            Log.d(TAG, "loadImages load folder[" + imagesFolder + "]");
 
-        Log.d(TAG, "loadImages load folder[" + imagesFolder + "]");
+            if (imagesFolder != null) {
+                File file = new File(imagesFolder);
 
-        if (imagesFolder != null) {
-            File file = new File(imagesFolder);
+                Log.d(TAG, "loadImages file exist[" + file.exists() + "]");
+                Log.d(TAG, "loadImages file id folder[" + file.isDirectory()
+                        + "]");
 
-            Log.d(TAG, "loadImages file exist[" + file.exists() + "]");
-            Log.d(TAG, "loadImages file id folder[" + file.isDirectory() + "]");
+                if (imagesFolder.contains("file:///android_asset/")) {
+                    imagesFolder = imagesFolder.replace(
+                            "file:///android_asset/", "");
 
-            if (imagesFolder.contains("file:///android_asset/")) {
-                imagesFolder = imagesFolder.replace("file:///android_asset/",
-                        "");
+                    fromAssets = true;
 
-                fromAssets = true;
-
-                try {
-                    String[] list = getAssets().list(imagesFolder);
-                    for (int i = 0; i < list.length; i++) {
-                        imagesPath.add(list[i]);
+                    try {
+                        String[] list = getAssets().list(imagesFolder);
+                        for (int i = 0; i < list.length; i++) {
+                            imagesPath.add(list[i]);
+                        }
+                    } catch (IOException e) {
+                        Log.e(TAG, "doInBackground [" + e + "]");
                     }
-                } catch (IOException e) {
-                    Log.e(TAG, "doInBackground [" + e + "]");
-                }
 
-            } else {
-                if (file.exists() && file.isDirectory()) {
-                    File[] listFiles = file.listFiles();
+                } else {
+                    if (file.exists() && file.isDirectory()) {
+                        File[] listFiles = file.listFiles();
 
-                    for (File fileCurrent : listFiles) {
-                        Log.d(TAG,
-                                "loadImages added file["
-                                        + fileCurrent.getPath() + "]");
+                        for (File fileCurrent : listFiles) {
+                            Log.d(TAG,
+                                    "loadImages added file["
+                                            + fileCurrent.getPath() + "]");
 
-                        imagesPath.add(fileCurrent.getPath());
+                            imagesPath.add(fileCurrent.getPath());
+                        }
                     }
                 }
+
+                Log.d(TAG, "loadImages path size [" + imagesPath.size() +"]");
+                if (position < imagesPath.size()){
+                    current = position;
+                }
+                
             }
+
         }
 
     }
 
     private void start() {
-        current = 0;
 
         if (imagesPath.size() > 0) {
 
@@ -270,7 +245,7 @@ public class GalleryActivity extends Activity {
                 LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 
         imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-//        imageView.setPadding(8, 8, 8, 8);
+        // imageView.setPadding(8, 8, 8, 8);
 
         return imageView;
     }
